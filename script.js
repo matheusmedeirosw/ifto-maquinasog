@@ -41,6 +41,7 @@ const registerForm = registerFormSection.querySelector('form');
 
 let currentUser = null;
 let currentDevices = [];
+let autoRefreshInterval = null;
 
 function showMessage(element, message, success = false) {
   element.textContent = message;
@@ -234,6 +235,10 @@ function showApp() {
   renderDeviceList();
   loadProfile(currentUser);
   showSection('dashboardSection');
+  
+  // Auto-refresh dos aparelhos a cada 5 segundos
+  if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+  autoRefreshInterval = setInterval(loadDevices, 5000);
 }
 
 function showLogin() {
@@ -313,6 +318,7 @@ logoutBtn.addEventListener('click', () => {
   logoutApi();
   currentUser = null;
   currentDevices = [];
+  if (autoRefreshInterval) clearInterval(autoRefreshInterval);
   showLogin();
 });
 
