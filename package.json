@@ -1,0 +1,16 @@
+{
+  "name": "ifto-dianopolis-controle",
+  "version": "1.0.0",
+  "description": "Backend para controle de uso de aparelhos do IFTO Dianópolis",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.4",
+    "jsonwebtoken": "^9.0.2",
+    "sqlite3": "^5.1.6"
+  }
+}
