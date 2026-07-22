@@ -19,6 +19,7 @@ const maintenanceDevicesEl = document.getElementById('maintenanceDevices');
 
 const sections = Array.from(document.querySelectorAll('.tab-section'));
 const navButtons = Array.from(document.querySelectorAll('.nav-btn'));
+const reservationsList = document.getElementById('reservationsList');
 
 const loginEmail = document.getElementById('loginEmail');
 const loginPassword = document.getElementById('loginPassword');
@@ -78,6 +79,55 @@ function updateDashboardStats() {
   availableDevicesEl.textContent = devices.filter(d => d.status === 'Disponível').length;
   inUseDevicesEl.textContent = devices.filter(d => d.status === 'Em uso').length;
   maintenanceDevicesEl.textContent = devices.filter(d => d.status === 'Em manutenção').length;
+}
+
+function renderReservationsList() {
+  reservationsList.innerHTML = '';
+  
+  // Coletar todas as reservas de todos os aparelhos
+  const allReservations = [];
+  currentDevices.forEach(device => {
+    if (device.reservations && device.reservations.length > 0) {
+      device.reservations.forEach(res => {
+        allReservations.push({
+          ...res,
+          deviceName: device.name,
+          deviceId: device.id
+        });
+      });
+    }
+  });
+
+  // Se não houver reservas, mostra mensagem vazia
+  if (allReservations.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-reservations';
+    empty.textContent = 'Nenhum horário reservado.';
+    reservationsList.appendChild(empty);
+    return;
+  }
+
+  // Ordena por data e hora
+  allReservations.sort((a, b) => {
+    const dateA = new Date(`${a.date}T${a.hour}`);
+    const dateB = new Date(`${b.date}T${b.hour}`);
+    return dateA - dateB;
+  });
+
+  // Renderiza cada reserva
+  allReservations.forEach(reservation => {
+    const card = document.createElement('div');
+    card.className = 'reservation-item';
+    card.innerHTML = `
+      <h4>${reservation.deviceName}</h4>
+      <p><strong>Reservado por:</strong> ${reservation.userName}</p>
+      <p><strong>E-mail:</strong> ${reservation.userEmail}</p>
+      <div class="reservation-time">
+        📅 ${formatDate(reservation.date)} às ${reservation.hour}
+      </div>
+    `;
+    reservationsList.appendChild(card);
+  });
 }
 
 function buildDeviceCard(device) {
@@ -232,6 +282,7 @@ function showApp() {
   if (!currentUser) return;
   userNameDisplay.textContent = currentUser.name;
   updateDashboardStats();
+  renderReservationsList();
   renderDeviceList();
   loadProfile(currentUser);
   showSection('dashboardSection');
@@ -253,6 +304,7 @@ async function loadDevices() {
     const response = await getDevicesApi();
     currentDevices = response.devices || [];
     updateDashboardStats();
+    renderReservationsList();
     renderDeviceList();
   } catch (error) {
     showMessage(addDeviceMessage, error.message);

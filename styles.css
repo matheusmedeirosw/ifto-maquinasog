@@ -349,6 +349,50 @@ select {
   }
 }
 
+.reservation-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.reservation-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.reservation-item h4 {
+  margin: 0 0 8px 0;
+  color: var(--primary);
+  font-size: 1rem;
+}
+
+.reservation-item p {
+  margin: 6px 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.reservation-item .reservation-time {
+  font-weight: 500;
+  color: var(--text);
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.empty-reservations {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+
 @media (max-width: 600px) {
   .container {
     padding: 16px;
