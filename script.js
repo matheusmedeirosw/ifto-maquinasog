@@ -4,8 +4,10 @@ const loginScreen = document.getElementById('login-screen');
 const appScreen = document.getElementById('app-screen');
 const loginTab = document.getElementById('loginTab');
 const registerTab = document.getElementById('registerTab');
+const recoveryTab = document.getElementById('recoveryTab');
 const loginFormSection = document.getElementById('loginForm');
 const registerFormSection = document.getElementById('registerForm');
+const recoveryFormSection = document.getElementById('recoveryForm');
 const loginMessage = document.getElementById('loginMessage');
 const addDeviceMessage = document.getElementById('addDeviceMessage');
 const profileMessage = document.getElementById('profileMessage');
@@ -31,6 +33,7 @@ const profileName = document.getElementById('profileName');
 const profileEmail = document.getElementById('profileEmail');
 const profilePhone = document.getElementById('profilePhone');
 const profilePassword = document.getElementById('profilePassword');
+const recoveryEmail = document.getElementById('recoveryEmail');
 
 const addDeviceForm = document.getElementById('addDeviceForm');
 const deviceNameInput = document.getElementById('deviceName');
@@ -39,10 +42,12 @@ const deviceStatusSelect = document.getElementById('deviceStatus');
 const profileForm = document.getElementById('profileForm');
 const loginForm = loginFormSection.querySelector('form');
 const registerForm = registerFormSection.querySelector('form');
+const recoveryRequestForm = document.getElementById('recoveryRequestForm');
 
 let currentUser = null;
 let currentDevices = [];
 let autoRefreshInterval = null;
+let isSwitchingAuthTab = false;
 
 function showMessage(element, message, success = false) {
   element.textContent = message;
@@ -56,12 +61,32 @@ function resetMessages() {
 }
 
 function switchAuthTab(tab) {
-  const loginActive = tab === 'login';
-  loginTab.classList.toggle('active', loginActive);
-  registerTab.classList.toggle('active', !loginActive);
-  loginFormSection.classList.toggle('hidden', !loginActive);
-  registerFormSection.classList.toggle('hidden', loginActive);
-  resetMessages();
+  const authTabs = {
+    login: { button: loginTab, section: loginFormSection },
+    register: { button: registerTab, section: registerFormSection },
+    recovery: { button: recoveryTab, section: recoveryFormSection }
+  };
+  const next = authTabs[tab];
+  const current = Object.values(authTabs).find(item => !item.section.classList.contains('hidden'));
+
+  if (isSwitchingAuthTab || !next || !current || current === next) return;
+
+  isSwitchingAuthTab = true;
+  current.section.classList.add('auth-section-leaving');
+
+  setTimeout(() => {
+    Object.values(authTabs).forEach(item => item.button.classList.toggle('active', item === next));
+    current.section.classList.remove('auth-section-leaving');
+    current.section.classList.add('hidden');
+    next.section.classList.remove('hidden');
+    next.section.classList.add('auth-section-entering');
+    resetMessages();
+
+    setTimeout(() => {
+      next.section.classList.remove('auth-section-entering');
+      isSwitchingAuthTab = false;
+    }, 320);
+  }, 140);
 }
 
 function showSection(targetId) {
@@ -133,6 +158,11 @@ function renderReservationsList() {
 function buildDeviceCard(device) {
   const card = document.createElement('article');
   card.className = 'device-card';
+  const statusClass = device.status
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, '-');
 
   const header = document.createElement('div');
   header.className = 'device-header';
@@ -141,7 +171,7 @@ function buildDeviceCard(device) {
       <h3>${device.name}</h3>
       <p>ID: ${device.id}</p>
     </div>
-    <span class="status-pill status-${device.status.replace(/\s/g, '\\ ')}">${device.status}</span>
+    <span class="status-pill status-${statusClass}">${device.status}</span>
   `;
   card.appendChild(header);
 
@@ -313,6 +343,7 @@ async function loadDevices() {
 
 loginTab.addEventListener('click', () => switchAuthTab('login'));
 registerTab.addEventListener('click', () => switchAuthTab('register'));
+recoveryTab.addEventListener('click', () => switchAuthTab('recovery'));
 
 loginForm.addEventListener('submit', async event => {
   event.preventDefault();
@@ -364,6 +395,18 @@ registerForm.addEventListener('submit', async event => {
   } catch (error) {
     showMessage(loginMessage, error.message);
   }
+});
+
+recoveryRequestForm.addEventListener('submit', event => {
+  event.preventDefault();
+  const email = recoveryEmail.value.trim().toLowerCase();
+
+  if (!email.endsWith(EMAIL_DOMAIN)) {
+    showMessage(loginMessage, `Use um e-mail válido do IFTO (${EMAIL_DOMAIN}).`);
+    return;
+  }
+
+  showMessage(loginMessage, 'Solicitação recebida. Procure a equipe responsável do campus para concluir a redefinição da senha.', true);
 });
 
 logoutBtn.addEventListener('click', () => {

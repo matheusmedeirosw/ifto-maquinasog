@@ -3,163 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IFTO Dianópolis - Controle de Aparelhos</title>
+  <meta name="theme-color" content="#007a3d" />
+  <title>IFTO Dianópolis | Gestão de equipamentos</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="animations.css" />
 </head>
 <body>
   <div class="container">
     <header class="app-header">
-      <div>
-        <h1>IFTO Dianópolis</h1>
-        <p>Controle de uso de aparelhos e laboratórios</p>
+      <div class="brand">
+        <div class="brand-mark"><img src="assets/logo-ifto-tocantins.png" alt="Instituto Federal Tocantins" /></div>
+        <div><h1>IFTO Dianópolis</h1><p>Gestão de equipamentos e laboratórios</p></div>
       </div>
-      <button id="logoutBtn" class="logout-btn hidden">Sair</button>
+      <button id="logoutBtn" class="logout-btn hidden" type="button">Sair</button>
     </header>
 
     <main>
       <section id="login-screen" class="screen active">
-        <div class="card login-card">
-          <div class="login-tabs">
-            <button id="loginTab" class="tab-button active">Entrar</button>
-            <button id="registerTab" class="tab-button">Cadastrar</button>
+        <div class="login-shell card">
+          <aside class="login-intro">
+            <span class="eyebrow">IFTO · Dianópolis</span>
+            <h2>Equipamentos organizados. Rotina mais simples.</h2>
+            <p>Centralize as reservas e acompanhe a disponibilidade dos recursos do campus.</p>
+            <ul class="intro-list"><li><span>✓</span> Reservas em um só lugar</li><li><span>✓</span> Visão rápida de disponibilidade</li><li><span>✓</span> Acesso exclusivo para servidores</li></ul>
+          </aside>
+          <div class="login-card">
+            <div class="login-tabs"><button id="loginTab" class="tab-button active" type="button">Entrar</button><button id="registerTab" class="tab-button" type="button">Cadastrar</button></div>
+            <div id="loginForm" class="form-section">
+              <h2>Boas-vindas</h2><p>Acesse sua conta institucional.</p>
+              <form><label for="loginEmail">E-mail institucional</label><input type="email" id="loginEmail" placeholder="seu@ifto.edu.br" autocomplete="email" required /><label for="loginPassword">Senha</label><input type="password" id="loginPassword" placeholder="Digite sua senha" autocomplete="current-password" required /><button type="submit" id="loginSubmit" class="primary-btn">Entrar na plataforma</button></form>
+              <p class="hint">Use o e-mail institucional @ifto.edu.br.</p><button id="recoveryTab" class="password-recovery-link" type="button">Esqueci minha senha</button>
+            </div>
+            <div id="registerForm" class="form-section hidden">
+              <h2>Criar acesso</h2><p>Cadastre-se para utilizar a plataforma.</p>
+              <form><label for="registerName">Nome completo</label><input type="text" id="registerName" placeholder="Seu nome" autocomplete="name" required /><label for="registerEmail">E-mail institucional</label><input type="email" id="registerEmail" placeholder="seu@ifto.edu.br" autocomplete="email" required /><label for="registerPassword">Senha</label><input type="password" id="registerPassword" placeholder="Crie uma senha" autocomplete="new-password" required /><label for="registerConfirmPassword">Confirmar senha</label><input type="password" id="registerConfirmPassword" placeholder="Repita sua senha" autocomplete="new-password" required /><button type="submit" id="registerSubmit" class="primary-btn">Criar conta</button></form>
+            </div>
+            <div id="recoveryForm" class="form-section hidden">
+              <h2>Recuperar acesso</h2><p>Informe seu e-mail institucional para receber as orientações de recuperação.</p>
+              <form id="recoveryRequestForm"><label for="recoveryEmail">E-mail institucional</label><input type="email" id="recoveryEmail" placeholder="seu@ifto.edu.br" autocomplete="email" required /><button type="submit" class="primary-btn">Solicitar recuperação</button></form>
+              <p class="hint">Por segurança, a redefinição de senha é orientada pela equipe responsável do campus.</p>
+            </div>
+            <div id="loginMessage" class="message" role="alert"></div>
           </div>
-
-          <div id="loginForm" class="form-section">
-            <h2>Entrar</h2>
-            <p>Use seu e-mail do IFTO para acessar.</p>
-            <form>
-              <label for="loginEmail">E-mail</label>
-              <input type="email" id="loginEmail" placeholder="seu@ifto.edu.br" required />
-
-              <label for="loginPassword">Senha</label>
-              <input type="password" id="loginPassword" placeholder="••••••••" required />
-
-              <button type="submit" id="loginSubmit" class="primary-btn">Entrar</button>
-            </form>
-            <p class="hint">Somente e-mails @ifto.edu.br podem ser registrados.</p>
-          </div>
-
-          <div id="registerForm" class="form-section hidden">
-            <h2>Cadastrar servidor</h2>
-            <form>
-              <label for="registerName">Nome completo</label>
-              <input type="text" id="registerName" placeholder="Seu nome" required />
-
-              <label for="registerEmail">E-mail IFTO</label>
-              <input type="email" id="registerEmail" placeholder="seu@ifto.edu.br" required />
-
-              <label for="registerPassword">Senha</label>
-              <input type="password" id="registerPassword" placeholder="••••••••" required />
-
-              <label for="registerConfirmPassword">Confirmar senha</label>
-              <input type="password" id="registerConfirmPassword" placeholder="••••••••" required />
-
-              <button type="submit" id="registerSubmit" class="primary-btn">Cadastrar</button>
-            </form>
-          </div>
-
-          <div id="loginMessage" class="message"></div>
         </div>
       </section>
 
       <section id="app-screen" class="screen">
-        <nav class="app-nav">
-          <button class="nav-btn active" data-target="dashboardSection">Dashboard</button>
-          <button class="nav-btn" data-target="addDeviceSection">Cadastro de aparelho</button>
-          <button class="nav-btn" data-target="devicesSection">Aparelhos cadastrados</button>
-          <button class="nav-btn" data-target="profileSection">Perfil</button>
-        </nav>
-
-        <section id="dashboardSection" class="tab-section active">
-          <div class="section-header">
-            <h2>Bem-vindo(a), <span id="userNameDisplay"></span></h2>
-            <p>Controle o uso dos aparelhos do IFTO Dianópolis.</p>
-          </div>
-          <div class="stats-grid">
-            <div class="stat-card blue-card">
-              <h3 id="totalDevices">0</h3>
-              <p>Aparelhos cadastrados</p>
-            </div>
-            <div class="stat-card green-card">
-              <h3 id="availableDevices">0</h3>
-              <p>Disponíveis</p>
-            </div>
-            <div class="stat-card orange-card">
-              <h3 id="inUseDevices">0</h3>
-              <p>Em uso</p>
-            </div>
-            <div class="stat-card red-card">
-              <h3 id="maintenanceDevices">0</h3>
-              <p>Em manutenção</p>
-            </div>
-          </div>
-
-          <div class="section-header" style="margin-top: 32px;">
-            <h3>Horários Reservados</h3>
-          </div>
-          <div id="reservationsList" class="reservation-list"></div>
-        </section>
-
-        <section id="addDeviceSection" class="tab-section hidden">
-          <div class="section-header">
-            <h2>Cadastro de aparelho</h2>
-            <p>Registre um equipamento novo que precisa ser controlado.</p>
-          </div>
-          <div class="card">
-            <form id="addDeviceForm">
-              <label for="deviceName">Nome do aparelho</label>
-              <input type="text" id="deviceName" placeholder="Retroprojetor, Sala de informática" required />
-
-              <label for="deviceStatus">Status inicial</label>
-              <select id="deviceStatus">
-                <option value="Disponível">Disponível</option>
-                <option value="Em uso">Em uso</option>
-                <option value="Em manutenção">Em manutenção</option>
-              </select>
-
-              <button type="submit" class="primary-btn">Adicionar aparelho</button>
-            </form>
-            <div id="addDeviceMessage" class="message"></div>
-          </div>
-        </section>
-
-        <section id="devicesSection" class="tab-section hidden">
-          <div class="section-header">
-            <h2>Aparelhos cadastrados</h2>
-            <p>Veja o status e selecione horários livres para uso.</p>
-          </div>
-          <div id="deviceList" class="device-list"></div>
-        </section>
-
-        <section id="profileSection" class="tab-section hidden">
-          <div class="section-header">
-            <h2>Perfil do servidor</h2>
-            <p>Atualize seus dados pessoais e sua senha.</p>
-          </div>
-          <div class="card profile-card">
-            <form id="profileForm">
-              <label for="profileName">Nome</label>
-              <input type="text" id="profileName" required />
-
-              <label for="profileEmail">E-mail</label>
-              <input type="email" id="profileEmail" disabled />
-
-              <label for="profilePhone">Telefone</label>
-              <input type="tel" id="profilePhone" placeholder="(XX) XXXXX-XXXX" />
-
-              <label for="profilePassword">Nova senha (deixe em branco para manter)</label>
-              <input type="password" id="profilePassword" placeholder="••••••••" />
-
-              <button type="submit" class="primary-btn">Salvar perfil</button>
-            </form>
-            <div id="profileMessage" class="message"></div>
-          </div>
-        </section>
+        <nav class="app-nav" aria-label="Navegação principal"><button class="nav-btn active" data-target="dashboardSection" type="button">Visão geral</button><button class="nav-btn" data-target="addDeviceSection" type="button">Novo aparelho</button><button class="nav-btn" data-target="devicesSection" type="button">Aparelhos</button><button class="nav-btn" data-target="profileSection" type="button">Meu perfil</button></nav>
+        <section id="dashboardSection" class="tab-section active"><div class="section-header"><div><h2>Olá, <span id="userNameDisplay"></span></h2><p>Acompanhe os equipamentos e reservas do campus.</p></div></div><div class="stats-grid"><div class="stat-card blue-card"><h3 id="totalDevices">0</h3><p>Aparelhos cadastrados</p></div><div class="stat-card green-card"><h3 id="availableDevices">0</h3><p>Disponíveis</p></div><div class="stat-card orange-card"><h3 id="inUseDevices">0</h3><p>Em uso</p></div><div class="stat-card red-card"><h3 id="maintenanceDevices">0</h3><p>Em manutenção</p></div></div><div class="section-header" style="margin-top: 34px;"><div><h3>Reservas agendadas</h3><p>Próximos horários registrados na plataforma.</p></div></div><div id="reservationsList" class="reservation-list"></div></section>
+        <section id="addDeviceSection" class="tab-section hidden"><div class="section-header"><div><h2>Novo aparelho</h2><p>Registre um equipamento que precisa ser controlado.</p></div></div><div class="card profile-card"><form id="addDeviceForm"><label for="deviceName">Nome do aparelho</label><input type="text" id="deviceName" placeholder="Ex.: Projetor do laboratório 01" required /><label for="deviceStatus">Status inicial</label><select id="deviceStatus"><option value="Disponível">Disponível</option><option value="Em uso">Em uso</option><option value="Em manutenção">Em manutenção</option></select><button type="submit" class="primary-btn">Adicionar aparelho</button></form><div id="addDeviceMessage" class="message" role="alert"></div></div></section>
+        <section id="devicesSection" class="tab-section hidden"><div class="section-header"><div><h2>Aparelhos</h2><p>Consulte a situação e reserve horários disponíveis.</p></div></div><div id="deviceList" class="device-list"></div></section>
+        <section id="profileSection" class="tab-section hidden"><div class="section-header"><div><h2>Meu perfil</h2><p>Atualize seus dados e sua senha de acesso.</p></div></div><div class="card profile-card"><form id="profileForm"><label for="profileName">Nome</label><input type="text" id="profileName" autocomplete="name" required /><label for="profileEmail">E-mail institucional</label><input type="email" id="profileEmail" disabled /><label for="profilePhone">Telefone</label><input type="tel" id="profilePhone" placeholder="(XX) XXXXX-XXXX" autocomplete="tel" /><label for="profilePassword">Nova senha</label><input type="password" id="profilePassword" placeholder="Deixe em branco para manter a atual" autocomplete="new-password" /><button type="submit" class="primary-btn">Salvar alterações</button></form><div id="profileMessage" class="message" role="alert"></div></div></section>
       </section>
     </main>
+    <footer class="app-footer">
+      <div class="footer-brand"><span class="footer-dot" aria-hidden="true"></span><span>IFTO · Campus Dianópolis</span></div>
+      <p>Gestão de equipamentos e laboratórios</p>
+      <span>© 2026 Instituto Federal do Tocantins</span>
+    </footer>
   </div>
-
-  <script src="api.js"></script>
-  <script src="script.js"></script>
+  <script src="api.js"></script><script src="script.js"></script><script src="animations.js" defer></script>
 </body>
 </html>
