@@ -1,4 +1,4 @@
-const API_BASE = window.location.origin;
+const API_BASE = window.API_BASE_URL || window.location.origin;
 
 function request(url, options = {}) {
   const token = localStorage.getItem('iftoToken');

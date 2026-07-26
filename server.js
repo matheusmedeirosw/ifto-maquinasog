@@ -10,8 +10,25 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'ifto-secret-key';
 
-// Use DATABASE_URL or fall back to a local Postgres connection string for development
-const pool = new Pool({ connectionString: process.env.DATABASE_URL || process.env.PG_CONNECTION_STRING });
+function buildPoolConfig() {
+  const connectionString = process.env.DATABASE_URL || process.env.PG_CONNECTION_STRING;
+  if (!connectionString) {
+    return {
+      host: process.env.PGHOST || 'localhost',
+      port: Number(process.env.PGPORT || 5432),
+      database: process.env.PGDATABASE || 'maquinasifto',
+      user: process.env.PGUSER || 'postgres',
+      password: process.env.PGPASSWORD || ''
+    };
+  }
+
+  return {
+    connectionString,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
+  };
+}
+
+const pool = new Pool(buildPoolConfig());
 
 async function query(text, params = []) {
   const res = await pool.query(text, params);

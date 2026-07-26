@@ -20,7 +20,8 @@ const inUseDevicesEl = document.getElementById('inUseDevices');
 const maintenanceDevicesEl = document.getElementById('maintenanceDevices');
 
 const sections = Array.from(document.querySelectorAll('.tab-section'));
-const navButtons = Array.from(document.querySelectorAll('.nav-btn'));
+const navButtons = Array.from(document.querySelectorAll('.header-nav-btn'));
+const headerNav = document.querySelector('.header-nav');
 const reservationsList = document.getElementById('reservationsList');
 
 const loginEmail = document.getElementById('loginEmail');
@@ -218,18 +219,35 @@ function buildDeviceCard(device) {
         empty.textContent = 'Nenhuma reserva registrada para a data selecionada.';
         empty.style.color = '#475569';
         slotList.appendChild(empty);
+        updateReserveButtonState();
         return;
       }
 
       dayReservations.forEach(reservation => {
         const slot = document.createElement('div');
-        slot.className = 'slot-item';
+        slot.className = 'slot-item reserved';
         slot.innerHTML = `
           <strong>${reservation.hour}</strong>
           <span>Reservado por ${reservation.userName}</span>
         `;
         slotList.appendChild(slot);
       });
+
+      updateReserveButtonState();
+    }
+
+    function updateReserveButtonState() {
+      const chosenDate = dateInput.value;
+      const chosenHour = hourSelect.value;
+      const isReserved = device.reservations.some(r => r.date === chosenDate && r.hour === chosenHour);
+      
+      if (isReserved) {
+        reserveButton.disabled = true;
+        reserveButton.textContent = '✓ Horário reservado';
+      } else {
+        reserveButton.disabled = false;
+        reserveButton.textContent = 'Reservar horário';
+      }
     }
 
     reserveButton.addEventListener('click', async () => {
@@ -252,6 +270,9 @@ function buildDeviceCard(device) {
     });
 
     dateInput.addEventListener('change', renderSlots);
+    hourSelect.addEventListener('change', () => {
+      updateReserveButtonState();
+    });
     card.appendChild(reserveSection);
     renderSlots();
   } else {
@@ -309,6 +330,7 @@ function showApp() {
   loginScreen.classList.remove('active');
   appScreen.classList.add('active');
   logoutBtn.classList.remove('hidden');
+  headerNav.classList.remove('hidden');
   if (!currentUser) return;
   userNameDisplay.textContent = currentUser.name;
   updateDashboardStats();
@@ -326,6 +348,7 @@ function showLogin() {
   loginScreen.classList.add('active');
   appScreen.classList.remove('active');
   logoutBtn.classList.add('hidden');
+  headerNav.classList.add('hidden');
   loginScreen.scrollIntoView({ behavior: 'smooth' });
 }
 

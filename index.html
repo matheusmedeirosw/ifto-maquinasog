@@ -15,6 +15,12 @@
         <div class="brand-mark"><img src="assets/logo-ifto-tocantins.png" alt="Instituto Federal Tocantins" /></div>
         <div><h1>IFTO Dianópolis</h1><p>Gestão de equipamentos e laboratórios</p></div>
       </div>
+      <nav class="header-nav hidden" aria-label="Navegação principal">
+        <button class="header-nav-btn active" data-target="dashboardSection" type="button">Visão geral</button>
+        <button class="header-nav-btn" data-target="addDeviceSection" type="button">Novo aparelho</button>
+        <button class="header-nav-btn" data-target="devicesSection" type="button">Aparelhos</button>
+        <button class="header-nav-btn" data-target="profileSection" type="button">Meu perfil</button>
+      </nav>
       <button id="logoutBtn" class="logout-btn hidden" type="button">Sair</button>
     </header>
 
@@ -49,7 +55,6 @@
       </section>
 
       <section id="app-screen" class="screen">
-        <nav class="app-nav" aria-label="Navegação principal"><button class="nav-btn active" data-target="dashboardSection" type="button">Visão geral</button><button class="nav-btn" data-target="addDeviceSection" type="button">Novo aparelho</button><button class="nav-btn" data-target="devicesSection" type="button">Aparelhos</button><button class="nav-btn" data-target="profileSection" type="button">Meu perfil</button></nav>
         <section id="dashboardSection" class="tab-section active"><div class="section-header"><div><h2>Olá, <span id="userNameDisplay"></span></h2><p>Acompanhe os equipamentos e reservas do campus.</p></div></div><div class="stats-grid"><div class="stat-card blue-card"><h3 id="totalDevices">0</h3><p>Aparelhos cadastrados</p></div><div class="stat-card green-card"><h3 id="availableDevices">0</h3><p>Disponíveis</p></div><div class="stat-card orange-card"><h3 id="inUseDevices">0</h3><p>Em uso</p></div><div class="stat-card red-card"><h3 id="maintenanceDevices">0</h3><p>Em manutenção</p></div></div><div class="section-header" style="margin-top: 34px;"><div><h3>Reservas agendadas</h3><p>Próximos horários registrados na plataforma.</p></div></div><div id="reservationsList" class="reservation-list"></div></section>
         <section id="addDeviceSection" class="tab-section hidden"><div class="section-header"><div><h2>Novo aparelho</h2><p>Registre um equipamento que precisa ser controlado.</p></div></div><div class="card profile-card"><form id="addDeviceForm"><label for="deviceName">Nome do aparelho</label><input type="text" id="deviceName" placeholder="Ex.: Projetor do laboratório 01" required /><label for="deviceStatus">Status inicial</label><select id="deviceStatus"><option value="Disponível">Disponível</option><option value="Em uso">Em uso</option><option value="Em manutenção">Em manutenção</option></select><button type="submit" class="primary-btn">Adicionar aparelho</button></form><div id="addDeviceMessage" class="message" role="alert"></div></div></section>
         <section id="devicesSection" class="tab-section hidden"><div class="section-header"><div><h2>Aparelhos</h2><p>Consulte a situação e reserve horários disponíveis.</p></div></div><div id="deviceList" class="device-list"></div></section>

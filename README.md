@@ -21,7 +21,7 @@ Este projeto é um site responsivo para o Instituto Federal Campus Dianópolis, 
 - `api.js`: integração com backend
 - `server.js`: servidor Express com autenticação JWT
 - `package.json`: dependências do backend
- - `package-lock.json`: dependências travadas
+- `package-lock.json`: dependências travadas
 
 ## Como usar
 
@@ -36,7 +36,7 @@ Este projeto é um site responsivo para o Instituto Federal Campus Dianópolis, 
 
 > Observação sobre banco de dados
 
-Este projeto já pode ser executado localmente com SQLite, mas para publicar em um serviço como Railway é recomendável usar PostgreSQL.
+Este projeto usa PostgreSQL para persistência. No Railway, a variável `DATABASE_URL` é usada automaticamente.
 
 Para testar com PostgreSQL localmente crie um arquivo `.env` na raiz com:
 
@@ -58,4 +58,4 @@ Deploy no Railway (resumo):
 2. Adicione o plugin "Postgres" no Railway (ele cria uma instância e define a variável `DATABASE_URL`).
 3. O Railway fará `npm install` e `npm start` automaticamente.
 
-Importante: o arquivo `database.sqlite` não será usado quando você rodar com PostgreSQL. Se já tiver dados no SQLite e quiser migrar para Postgres, exporte e importe manualmente.
+Importante: o projeto não depende mais de SQLite.
