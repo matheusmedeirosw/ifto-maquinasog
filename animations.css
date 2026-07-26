@@ -19,6 +19,54 @@
 .animated-number.pop {
   transform: scale(1.06);
 }
+
+/* Animação de reserva confirmada */
+@keyframes slot-reserved-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 8px 24px rgba(0, 122, 61, .22), inset 0 1px 2px rgba(0, 122, 61, .08);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 12px 32px rgba(0, 122, 61, .35), inset 0 1px 2px rgba(0, 122, 61, .12);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 8px 24px rgba(0, 122, 61, .22), inset 0 1px 2px rgba(0, 122, 61, .08);
+  }
+}
+
+.slot-item.reserved-animate {
+  animation: slot-reserved-pulse 0.6s ease-out forwards;
+}
+
+/* Animação de fade-in para novo slot */
+@keyframes slot-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slot-item.fade-in {
+  animation: slot-fade-in 0.4s cubic-bezier(.2,.85,.3,1);
+}
+
+/* Botão desabilitado com feedback */
+@keyframes button-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+.reserve-button:disabled {
+  animation: button-shake 0.3s ease-in-out;
+}
+
 .lazy-bg {
   background-repeat: no-repeat;
   background-position: center;
@@ -26,6 +74,7 @@
   min-height: 60px;
   background-color: rgba(240,245,255,0.6);
 }
+
 @media (prefers-reduced-motion: reduce) {
   .anim-hidden,
   .in-view,
@@ -35,6 +84,11 @@
   }
   .auth-section-leaving,
   .auth-section-entering {
+    animation: none !important;
+  }
+  .slot-item.reserved-animate,
+  .slot-item.fade-in,
+  .reserve-button:disabled {
     animation: none !important;
   }
 }

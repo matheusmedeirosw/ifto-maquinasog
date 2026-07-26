@@ -212,6 +212,16 @@ input:disabled { color: #78877e; background: #f2f5f3; cursor: not-allowed; }
 .reserve-row select, .reserve-row input, .reserve-row button { flex: 1 1 150px; }
 .reserve-button { margin-top: 0; }
 .reserve-button:disabled { opacity: .6; cursor: not-allowed; }
+.reserve-button.reserved-state {
+  background: linear-gradient(135deg, #16834b, #0f5c34);
+  box-shadow: 0 8px 20px rgba(22, 131, 75, .28);
+  opacity: 1;
+}
+.reserve-button.reserved-state:hover { 
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 8px 20px rgba(22, 131, 75, .28);
+}
 .slot-list { display: grid; gap: 8px; margin-top: 4px; }
 .slot-item { display: flex; justify-content: space-between; gap: 10px; padding: 11px 13px; border: 1px solid #e5eee7; border-radius: 10px; background: #f8fbf9; font-size: .87rem; }
 .slot-item { transition: background .18s ease, border-color .18s ease, box-shadow .18s ease; }

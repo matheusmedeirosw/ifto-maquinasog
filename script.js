@@ -225,7 +225,7 @@ function buildDeviceCard(device) {
 
       dayReservations.forEach(reservation => {
         const slot = document.createElement('div');
-        slot.className = 'slot-item reserved';
+        slot.className = 'slot-item reserved fade-in';
         slot.innerHTML = `
           <strong>${reservation.hour}</strong>
           <span>Reservado por ${reservation.userName}</span>
@@ -244,9 +244,11 @@ function buildDeviceCard(device) {
       if (isReserved) {
         reserveButton.disabled = true;
         reserveButton.textContent = '✓ Horário reservado';
+        reserveButton.classList.add('reserved-state');
       } else {
         reserveButton.disabled = false;
         reserveButton.textContent = 'Reservar horário';
+        reserveButton.classList.remove('reserved-state');
       }
     }
 
@@ -263,7 +265,11 @@ function buildDeviceCard(device) {
       try {
         await reserveDeviceApi(device.id, chosenDate, chosenHour);
         showMessage(addDeviceMessage, `Reserva criada para ${chosenHour} em ${formatDate(chosenDate)}.`, true);
-        await loadDevices();
+        
+        // Pequeno delay para visualizar a animação antes de recarregar
+        setTimeout(() => {
+          loadDevices();
+        }, 600);
       } catch (error) {
         showMessage(addDeviceMessage, error.message);
       }
