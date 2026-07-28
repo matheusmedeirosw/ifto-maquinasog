@@ -13,6 +13,8 @@ const addDeviceMessage = document.getElementById('addDeviceMessage');
 const profileMessage = document.getElementById('profileMessage');
 const userNameDisplay = document.getElementById('userNameDisplay');
 const logoutBtn = document.getElementById('logoutBtn');
+const headerActions = document.getElementById('headerActions');
+const navToggle = document.getElementById('navToggle');
 const deviceList = document.getElementById('deviceList');
 const totalDevicesEl = document.getElementById('totalDevices');
 const availableDevicesEl = document.getElementById('availableDevices');
@@ -93,6 +95,8 @@ function switchAuthTab(tab) {
 function showSection(targetId) {
   sections.forEach(section => section.classList.toggle('hidden', section.id !== targetId));
   navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.target === targetId));
+  headerNav.classList.remove('is-open');
+  if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
 }
 
 function formatDate(date) {
@@ -187,52 +191,90 @@ function buildDeviceCard(device) {
     reserveSection.innerHTML = `
       <div>
         <label>Selecione a data</label>
-        <input type="date" value="${new Date().toISOString().slice(0, 10)}" class="reserve-date" />
+        <input type="date" min="${new Date().toISOString().slice(0, 10)}" value="${new Date().toISOString().slice(0, 10)}" class="reserve-date" />
       </div>
       <div class="reserve-row">
         <select class="reserve-hour"></select>
         <button class="reserve-button">Reservar horário</button>
       </div>
       <div class="slot-list"></div>
+      <p class="reserve-message" role="status" aria-live="polite"></p>
     `;
 
     const hourSelect = reserveSection.querySelector('.reserve-hour');
     const dateInput = reserveSection.querySelector('.reserve-date');
     const reserveButton = reserveSection.querySelector('.reserve-button');
     const slotList = reserveSection.querySelector('.slot-list');
+    const reserveMessage = reserveSection.querySelector('.reserve-message');
 
-    for (let hour = 8; hour <= 18; hour += 2) {
-      const option = document.createElement('option');
-      option.value = `${hour}:00`;
-      option.textContent = `${String(hour).padStart(2, '0')}:00 - ${String(hour + 2).padStart(2, '0')}:00`;
-      hourSelect.appendChild(option);
+    const ALL_HOURS = [];
+    for (let hour = 8; hour <= 18; hour += 2) ALL_HOURS.push(`${hour}:00`);
+
+    function populateHourOptions(chosenDate) {
+      const reserved = (device.reservations || []).filter(r => r.date === chosenDate).map(r => r.hour);
+      hourSelect.innerHTML = '';
+      const available = ALL_HOURS.filter(h => !reserved.includes(h));
+
+      if (available.length === 0) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Nenhum horário disponível';
+        hourSelect.appendChild(option);
+        hourSelect.disabled = true;
+        reserveButton.disabled = true;
+        return;
+      }
+
+      available.forEach(h => {
+        const hourNum = parseInt(h.split(':')[0], 10);
+        const option = document.createElement('option');
+        option.value = h;
+        option.textContent = `${String(hourNum).padStart(2, '0')}:00 - ${String(hourNum + 2).padStart(2, '0')}:00`;
+        hourSelect.appendChild(option);
+      });
+      hourSelect.disabled = false;
+      reserveButton.disabled = false;
     }
 
     function renderSlots() {
       const chosenDate = dateInput.value;
       slotList.innerHTML = '';
-      const sorted = [...device.reservations].sort((a, b) => a.hour.localeCompare(b.hour));
-      const dayReservations = sorted.filter(r => r.date === chosenDate);
+      const sorted = [...(device.reservations || [])].sort((a, b) => a.hour.localeCompare(b.hour));
+      const dayReservations = sorted.filter(r => r.date === chosenDate).map(r => r.hour);
 
-      if (dayReservations.length === 0) {
+      // Mostrar apenas horários disponíveis
+      const available = ALL_HOURS.filter(h => !dayReservations.includes(h));
+
+      if (available.length === 0) {
         const empty = document.createElement('p');
-        empty.textContent = 'Nenhuma reserva registrada para a data selecionada.';
+        empty.textContent = 'Nenhum horário disponível para a data selecionada.';
         empty.style.color = '#475569';
         slotList.appendChild(empty);
         updateReserveButtonState();
         return;
       }
 
-      dayReservations.forEach(reservation => {
+      available.forEach(hour => {
         const slot = document.createElement('div');
-        slot.className = 'slot-item reserved fade-in';
+        slot.className = 'slot-item available fade-in';
+        slot.dataset.hour = hour;
         slot.innerHTML = `
-          <strong>${reservation.hour}</strong>
-          <span>Reservado por ${reservation.userName}</span>
+          <strong>${hour}</strong>
+          <button class="slot-reserve-btn">Reservar</button>
         `;
+
+        // clique rápido no slot preenche o select e foca no botão principal
+        slot.querySelector('.slot-reserve-btn').addEventListener('click', () => {
+          hourSelect.value = hour;
+          updateReserveButtonState();
+          reserveButton.focus();
+        });
+
         slotList.appendChild(slot);
       });
 
+      // synchronize select options with availability
+      populateHourOptions(chosenDate);
       updateReserveButtonState();
     }
 
@@ -245,10 +287,12 @@ function buildDeviceCard(device) {
         reserveButton.disabled = true;
         reserveButton.textContent = '✓ Horário reservado';
         reserveButton.classList.add('reserved-state');
+        reserveMessage.textContent = 'Este aparelho já está reservado nesse horário.';
       } else {
         reserveButton.disabled = false;
         reserveButton.textContent = 'Reservar horário';
         reserveButton.classList.remove('reserved-state');
+        reserveMessage.textContent = '';
       }
     }
 
@@ -263,15 +307,37 @@ function buildDeviceCard(device) {
       }
 
       try {
-        await reserveDeviceApi(device.id, chosenDate, chosenHour);
-        showMessage(addDeviceMessage, `Reserva criada para ${chosenHour} em ${formatDate(chosenDate)}.`, true);
-        
-        // Pequeno delay para visualizar a animação antes de recarregar
-        setTimeout(() => {
-          loadDevices();
-        }, 600);
+        reserveButton.disabled = true;
+        reserveButton.textContent = 'Confirmando reserva...';
+        const { reservation } = await reserveDeviceApi(device.id, chosenDate, chosenHour);
+
+        // atualiza apenas o dispositivo localmente para resposta rápida
+        device.reservations.push(reservation);
+
+        // animação: encontra o slot disponível correspondente e mostra reservado
+        const targetSlot = slotList.querySelector(`.slot-item[data-hour="${chosenHour}"]`);
+        if (targetSlot) {
+          targetSlot.classList.remove('available', 'fade-in');
+          targetSlot.classList.add('reserved', 'reserved-animate');
+          targetSlot.innerHTML = `\n            <strong>${chosenHour} — Horário reservado</strong>\n            <span>Reservado por ${reservation.userName}</span>\n          `;
+          // remove o elemento após animação (opcional) e re-renderiza os slots
+          setTimeout(() => {
+            renderSlots();
+          }, 620);
+        } else {
+          // se não encontrou slot (por exemplo, lista vazia), apenas re-renderiza
+          renderSlots();
+        }
+
+        renderReservationsList();
+        reserveMessage.textContent = `Horário reservado para ${formatDate(chosenDate)} às ${chosenHour}.`;
+        reserveMessage.classList.add('success');
+        // mantemos o loadDevices para garantir consistência no backend
+        setTimeout(loadDevices, 700);
       } catch (error) {
-        showMessage(addDeviceMessage, error.message);
+        reserveMessage.textContent = error.message;
+        reserveMessage.classList.remove('success');
+        await loadDevices();
       }
     });
 
@@ -336,7 +402,8 @@ function showApp() {
   loginScreen.classList.remove('active');
   appScreen.classList.add('active');
   logoutBtn.classList.remove('hidden');
-  headerNav.classList.remove('hidden');
+  if (headerActions) headerActions.classList.remove('hidden');
+  if (headerNav) headerNav.classList.remove('hidden');
   if (!currentUser) return;
   userNameDisplay.textContent = currentUser.name;
   updateDashboardStats();
@@ -354,7 +421,12 @@ function showLogin() {
   loginScreen.classList.add('active');
   appScreen.classList.remove('active');
   logoutBtn.classList.add('hidden');
-  headerNav.classList.add('hidden');
+  if (headerActions) headerActions.classList.add('hidden');
+  if (headerNav) {
+    headerNav.classList.add('hidden');
+    headerNav.classList.remove('is-open');
+  }
+  if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
   loginScreen.scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -495,6 +567,13 @@ navButtons.forEach(button => {
     showSection(button.dataset.target);
   });
 });
+
+if (navToggle) {
+  navToggle.addEventListener('click', () => {
+    const isOpen = headerNav && headerNav.classList.toggle('is-open');
+    navToggle.setAttribute('aria-expanded', String(Boolean(isOpen)));
+  });
+}
 
 window.addEventListener('DOMContentLoaded', async () => {
   const token = getAuthToken();
